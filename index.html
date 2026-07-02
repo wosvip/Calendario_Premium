@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#003b7a">
+
+<link rel="apple-touch-icon" href="icone.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Calendário">
+<title>Calendário</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#4a6fa5;
+    margin:0;
+    padding:6px;
+}
+
+.container{
+    width:100%;
+    max-width:430px;
+    margin:auto;
+    background:#050505;
+    padding:12px;
+    border-radius:22px;
+    box-sizing:border-box;
+}
+
+h1{
+    text-align:center;
+    color:white;
+    font-size:26px;
+    margin:8px 0 12px 0;
+}
+
+.barra-selecao{
+    width:100%;
+    background:#f4ead4;
+    border-radius:14px;
+    padding:8px 10px;
+    margin-bottom:8px;
+    box-sizing:border-box;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:#003b7a;
+    font-weight:bold;
+    font-size:17px;
+}
+
+.grupo{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+select{
+    background:transparent;
+    border:none;
+    color:#003b7a;
+    font-size:17px;
+    font-weight:bold;
+    outline:none;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+th{
+    background:#003b7a;
+    color:white;
+    padding:9px 2px;
+    font-size:15px;
+}
+
+th.domingo{
+    color:red;
+    background:#f7f7f7;
+}
+
+th.sabado{
+    color:#ff5a00;
+    background:#f7f7f7;
+}
+
+td{
+    border:1px solid #d0d0d0;
+    height:48px;
+    text-align:center;
+    vertical-align:middle;
+    font-size:16px;
+    background:white;
+}
+
+.semana{
+    background:#e9e9e9;
+    font-weight:bold;
+    color:#003b7a;
+}
+
+.domingo-dia{
+    color:red;
+    font-weight:bold;
+}
+
+.sabado-dia{
+    color:#ff5a00;
+}
+
+.hoje{
+    background:#ffdf4d;
+    border:4px solid #ff9800;
+    font-weight:bold;
+}
+
+.feriado{
+    background:#ffd6d6;
+    color:#b30000;
+    font-weight:bold;
+}
+
+.rodape-dev{
+    margin-top:12px;
+    margin-bottom:12px;
+    text-align:center;
+    color:#ffffff;
+    font-size:15px;
+    font-weight:bold;
+    letter-spacing:0.5px;
+}
+
+.rodape-dev strong{
+    color:#ffd700;
+}
+
+.feriados-box{
+    margin-top:0;
+    background:#f4ead4;
+    padding:15px;
+    border-radius:18px;
+    border-left:6px solid #003b7a;
+}
+
+.feriados-box h2{
+    margin:0 0 10px 0;
+    color:#003b7a;
+    font-size:24px;
+}
+
+.feriados-box li{
+    font-size:15px;
+    margin-bottom:6px;
+}
+
+@media(max-width:480px){
+    body{
+        padding:4px;
+    }
+
+    .container{
+        padding:10px;
+        border-radius:20px;
+    }
+
+    h1{
+        font-size:25px;
+    }
+
+    .barra-selecao{
+        font-size:16px;
+        padding:8px;
+    }
+
+    select{
+        font-size:16px;
+    }
+
+    th{
+        font-size:14px;
+        padding:8px 1px;
+    }
+
+    td{
+        height:47px;
+        font-size:16px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📅 Calendário</h1>
+
+    <div class="barra-selecao">
+        <div class="grupo">
+            <span>Mês:</span>
+            <select id="mes"></select>
+        </div>
+
+        <div class="grupo">
+            <span>Ano:</span>
+            <select id="ano"></select>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Sem</th>
+                <th class="domingo">Dom</th>
+                <th>Seg</th>
+                <th>Ter</th>
+                <th>Qua</th>
+                <th>Qui</th>
+                <th>Sex</th>
+                <th class="sabado">Sáb</th>
+            </tr>
+        </thead>
+        <tbody id="calendario"></tbody>
+    </table>
+
+    <div class="rodape-dev">
+        Desenvolvido por: <strong>WosVIP®</strong>
+    </div>
+
+    <div class="feriados-box">
+        <h2>Feriados do Mês</h2>
+        <ul id="listaFeriados"></ul>
+    </div>
+
+</div>
+
+<script>
+const meses=[
+"Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+"Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+];
+
+const hoje=new Date();
+
+const selectMes=document.getElementById("mes");
+const selectAno=document.getElementById("ano");
+const calendario=document.getElementById("calendario");
+const listaFeriados=document.getElementById("listaFeriados");
+
+meses.forEach((m,i)=>{
+    const op=document.createElement("option");
+    op.value=i;
+    op.textContent=m;
+    selectMes.appendChild(op);
+});
+
+for(let ano=hoje.getFullYear()-10; ano<=hoje.getFullYear()+10; ano++){
+    const op=document.createElement("option");
+    op.value=ano;
+    op.textContent=ano;
+    selectAno.appendChild(op);
+}
+
+selectMes.value=hoje.getMonth();
+selectAno.value=hoje.getFullYear();
+
+selectMes.addEventListener("change",gerarCalendario);
+selectAno.addEventListener("change",gerarCalendario);
+
+function numeroSemana(data){
+    const inicioAno=new Date(data.getFullYear(),0,1);
+    const dias=Math.floor((data-inicioAno)/(24*60*60*1000));
+    return Math.ceil((dias+inicioAno.getDay()+1)/7);
+}
+
+function calcularPascoa(ano){
+    const a=ano%19;
+    const b=Math.floor(ano/100);
+    const c=ano%100;
+    const d=Math.floor(b/4);
+    const e=b%4;
+    const f=Math.floor((b+8)/25);
+    const g=Math.floor((b-f+1)/3);
+    const h=(19*a+b-d-g+15)%30;
+    const i=Math.floor(c/4);
+    const k=c%4;
+    const l=(32+2*e+2*i-h-k)%7;
+    const m=Math.floor((a+11*h+22*l)/451);
+    const mes=Math.floor((h+l-7*m+114)/31);
+    const dia=((h+l-7*m+114)%31)+1;
+    return new Date(ano,mes-1,dia);
+}
+
+function addDias(data,dias){
+    const nova=new Date(data);
+    nova.setDate(nova.getDate()+dias);
+    return nova;
+}
+
+function feriadosAno(ano){
+    const pascoa=calcularPascoa(ano);
+
+    return[
+        {data:new Date(ano,0,1),nome:"Confraternização Universal"},
+        {data:addDias(pascoa,-48),nome:"Carnaval"},
+        {data:addDias(pascoa,-47),nome:"Carnaval"},
+        {data:addDias(pascoa,-2),nome:"Sexta-feira Santa"},
+        {data:pascoa,nome:"Páscoa"},
+        {data:new Date(ano,3,21),nome:"Tiradentes"},
+        {data:new Date(ano,4,1),nome:"Dia do Trabalhador"},
+        {data:addDias(pascoa,60),nome:"Corpus Christi"},
+        {data:new Date(ano,8,7),nome:"Independência do Brasil"},
+        {data:new Date(ano,9,12),nome:"Nossa Senhora Aparecida"},
+        {data:new Date(ano,10,2),nome:"Finados"},
+        {data:new Date(ano,10,15),nome:"Proclamação da República"},
+        {data:new Date(ano,10,20),nome:"Consciência Negra"},
+        {data:new Date(ano,11,25),nome:"Natal"}
+    ];
+}
+
+function gerarCalendario(){
+    calendario.innerHTML="";
+    listaFeriados.innerHTML="";
+
+    const mes=parseInt(selectMes.value);
+    const ano=parseInt(selectAno.value);
+
+    const primeiroDia=new Date(ano,mes,1);
+    const ultimoDia=new Date(ano,mes+1,0);
+    const feriados=feriadosAno(ano);
+
+    const feriadosMes=feriados.filter(f=>f.data.getMonth()===mes);
+
+    if(feriadosMes.length===0){
+        listaFeriados.innerHTML="<li>Não existem feriados nacionais neste mês.</li>";
+    }else{
+        feriadosMes.forEach(f=>{
+            const li=document.createElement("li");
+            li.textContent =
+            `${String(f.data.getDate()).padStart(2,"0")}/`+
+            `${String(f.data.getMonth()+1).padStart(2,"0")} - ${f.nome}`;
+            listaFeriados.appendChild(li);
+        });
+    }
+
+    let linha=document.createElement("tr");
+    linha.innerHTML=`<td class="semana">${numeroSemana(primeiroDia)}</td>`;
+
+    for(let i=0;i<primeiroDia.getDay();i++){
+        linha.appendChild(document.createElement("td"));
+    }
+
+    for(let dia=1; dia<=ultimoDia.getDate(); dia++){
+        if(linha.children.length===8){
+            calendario.appendChild(linha);
+            linha=document.createElement("tr");
+            linha.innerHTML=`<td class="semana">${numeroSemana(new Date(ano,mes,dia))}</td>`;
+        }
+
+        const td=document.createElement("td");
+        const dataAtual=new Date(ano,mes,dia);
+
+        td.textContent=dia;
+
+        if(dataAtual.getDay()===0){
+            td.classList.add("domingo-dia");
+        }
+
+        if(dataAtual.getDay()===6){
+            td.classList.add("sabado-dia");
+        }
+
+        if(
+            dia===hoje.getDate() &&
+            mes===hoje.getMonth() &&
+            ano===hoje.getFullYear()
+        ){
+            td.classList.add("hoje");
+        }
+
+        const feriado=feriados.find(f=>
+            f.data.toDateString()===dataAtual.toDateString()
+        );
+
+        if(feriado){
+            td.classList.add("feriado");
+        }
+
+        linha.appendChild(td);
+    }
+
+    while(linha.children.length<8){
+        linha.appendChild(document.createElement("td"));
+    }
+
+    calendario.appendChild(linha);
+}
+
+gerarCalendario();
+</script>
+
+</body>
+</html>

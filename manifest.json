@@ -1,5 +1,5 @@
 {
-  "name": "Calendário WosVIP",
+  "name": "Calendário Premium",
   "short_name": "Calendário",
   "description": "Calendário WosVIP com semanas e feriados.",
   "start_url": "./index.html",
@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icone.png",
+      "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }

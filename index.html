@@ -67,8 +67,31 @@
     </section>
 
     <section id="dataSelecionada" class="selected-info" aria-live="polite">
-      <span aria-hidden="true">📌</span>
-      <div>Toque em um dia para ver os detalhes.</div>
+      <div class="selected-icon" aria-hidden="true">📅</div>
+      <div class="selected-content">
+        <span class="selected-label">Hoje</span>
+        <strong id="selectedTitle">Carregando...</strong>
+        <small id="selectedSubtitle">Nenhum evento cadastrado.</small>
+      </div>
+    </section>
+
+    <section class="month-summary" aria-label="Resumo do mês">
+      <div>
+        <span>Dias</span>
+        <strong id="resumoDias">—</strong>
+      </div>
+      <div>
+        <span>Semanas</span>
+        <strong id="resumoSemanas">—</strong>
+      </div>
+      <div>
+        <span>Feriados</span>
+        <strong id="resumoFeriados">—</strong>
+      </div>
+      <div>
+        <span>Hoje</span>
+        <strong id="resumoHoje">—</strong>
+      </div>
     </section>
 
     <div class="developer">

@@ -12,7 +12,13 @@
   const calendario = document.getElementById("calendario");
   const listaFeriados = document.getElementById("listaFeriados");
   const infoSelecionada = document.getElementById("dataSelecionada");
+  const selectedTitle = document.getElementById("selectedTitle");
+  const selectedSubtitle = document.getElementById("selectedSubtitle");
   const dataAtualCabecalho = document.getElementById("dataAtualCabecalho");
+  const resumoDias = document.getElementById("resumoDias");
+  const resumoSemanas = document.getElementById("resumoSemanas");
+  const resumoFeriados = document.getElementById("resumoFeriados");
+  const resumoHoje = document.getElementById("resumoHoje");
   const calendarShell = document.querySelector(".calendar-shell");
   const app = document.querySelector(".app");
 
@@ -46,25 +52,43 @@
   }
 
   function atualizarInfoSelecionada(data, feriado){
-    if(!data){
-      infoSelecionada.innerHTML =
-        '<span aria-hidden="true">📌</span><div>Toque em um dia para ver os detalhes.</div>';
-      return;
-    }
+    const referencia = data || hoje;
+    const ehHoje = Calendar.mesmaData(referencia, hoje);
 
     const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
       weekday:"long",
       day:"2-digit",
       month:"long",
       year:"numeric"
-    }).format(data);
+    }).format(referencia);
 
-    const complemento = feriado
-      ? ` • ${feriado.nome} (${feriado.tipo})`
-      : "";
+    infoSelecionada.querySelector(".selected-label").textContent =
+      ehHoje ? "Hoje" : "Data selecionada";
 
-    infoSelecionada.innerHTML =
-      `<span aria-hidden="true">📌</span><div><strong>${dataFormatada}</strong>${complemento}</div>`;
+    selectedTitle.textContent = dataFormatada;
+
+    if(feriado){
+      selectedSubtitle.textContent = `${feriado.nome} — ${feriado.tipo}`;
+    }else{
+      selectedSubtitle.textContent = "Nenhum evento cadastrado.";
+    }
+  }
+
+  function atualizarResumoMes(ano, mes, feriados){
+    const totalDias = new Date(ano, mes + 1, 0).getDate();
+    const grade = Calendar.criarGrade(ano, mes);
+    const semanasComDiasDoMes = grade.filter(semana =>
+      semana.dias.some(data => data.getMonth() === mes)
+    ).length;
+    const totalFeriados = feriados.filter(item => item.data.getMonth() === mes).length;
+    const hojeNoMes = hoje.getFullYear() === ano && hoje.getMonth() === mes
+      ? String(hoje.getDate()).padStart(2, "0")
+      : "—";
+
+    resumoDias.textContent = totalDias;
+    resumoSemanas.textContent = semanasComDiasDoMes;
+    resumoFeriados.textContent = totalFeriados;
+    resumoHoje.textContent = hojeNoMes;
   }
 
   function renderizarFeriados(feriados, mes){
@@ -181,12 +205,18 @@
     });
 
     renderizarFeriados(feriados, mes);
+    atualizarResumoMes(ano, mes, feriados);
+
+    calendarShell.classList.remove("calendar-animating");
+    void calendarShell.offsetWidth;
+    calendarShell.classList.add("calendar-animating");
 
     if(dataSelecionada){
       const feriadoSelecionado = mapaFeriados.get(Calendar.chaveData(dataSelecionada));
       atualizarInfoSelecionada(dataSelecionada, feriadoSelecionado);
     }else{
-      atualizarInfoSelecionada(null, null);
+      const feriadoHoje = mapaFeriados.get(Calendar.chaveData(hoje));
+      atualizarInfoSelecionada(null, feriadoHoje);
     }
   }
 

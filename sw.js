@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "calendario-wosvip-pacote-final-v1";
+const CACHE_NAME = "calendario-wosvip-v2-visual";
 
 const ARQUIVOS = [
   "./",

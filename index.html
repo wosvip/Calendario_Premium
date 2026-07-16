@@ -528,7 +528,7 @@
     ];
 
     const hoje = zerarHora(new Date());
-    let dataSelecionada = new Date(hoje);
+    let dataSelecionada = null;
 
     const selectMes = document.getElementById("mes");
     const selectAno = document.getElementById("ano");
@@ -710,13 +710,16 @@
           if(mesmaData(data, hoje)){
             celula.classList.add("today");
           }
-          if(mesmaData(data, dataSelecionada)){
+          if(dataSelecionada && mesmaData(data, dataSelecionada)){
             celula.classList.add("selected");
           }
 
           const selecionar = () => {
-            dataSelecionada = data;
-            atualizarInfoSelecionada(data, feriado);
+            if(dataSelecionada && mesmaData(dataSelecionada, data)){
+              dataSelecionada = null;
+            }else{
+              dataSelecionada = data;
+            }
             gerarCalendario();
           };
 
@@ -753,25 +756,30 @@
         });
       }
 
-      const feriadoSelecionado = mapaFeriados.get(chaveData(dataSelecionada));
-      atualizarInfoSelecionada(dataSelecionada, feriadoSelecionado);
+      if(dataSelecionada){
+        const feriadoSelecionado = mapaFeriados.get(chaveData(dataSelecionada));
+        atualizarInfoSelecionada(dataSelecionada, feriadoSelecionado);
+      }else{
+        infoSelecionada.innerHTML =
+          '<span aria-hidden="true">📌</span><div>Toque em um dia para ver os detalhes.</div>';
+      }
     }
 
     function mudarMes(delta){
       const data = new Date(Number(selectAno.value), Number(selectMes.value) + delta, 1);
       selectMes.value = data.getMonth();
       selectAno.value = data.getFullYear();
-      dataSelecionada = new Date(data);
+      dataSelecionada = null;
       gerarCalendario();
     }
 
     selectMes.addEventListener("change", () => {
-      dataSelecionada = new Date(Number(selectAno.value), Number(selectMes.value), 1);
+      dataSelecionada = null;
       gerarCalendario();
     });
 
     selectAno.addEventListener("change", () => {
-      dataSelecionada = new Date(Number(selectAno.value), Number(selectMes.value), 1);
+      dataSelecionada = null;
       gerarCalendario();
     });
 
@@ -783,6 +791,17 @@
       selectAno.value = hoje.getFullYear();
       dataSelecionada = new Date(hoje);
       gerarCalendario();
+    });
+
+
+    document.querySelector(".app").addEventListener("click", event => {
+      const clicouEmDia = event.target.closest(".day");
+      const clicouEmControle = event.target.closest("button, select");
+
+      if(!clicouEmDia && !clicouEmControle && dataSelecionada){
+        dataSelecionada = null;
+        gerarCalendario();
+      }
     });
 
     // Navegação por gesto no smartphone.
